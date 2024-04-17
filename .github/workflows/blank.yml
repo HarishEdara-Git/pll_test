@@ -28,7 +28,7 @@ jobs:
 
       - name: SSH into Bastion Host
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.BASTION_HOST_SSH_KEY }} ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST_IP }} << EOF
+          ssh -o StrictHostKeyChecking=no -i <private_key_path>: ${{ secrets.BASTION_HOST_SSH_KEY }} ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST_IP }} << EOF
           # Commands to execute on Bastion Host (replace with your commands)
           # Example: Update kubeconfig with VPC Endpoint URL
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
