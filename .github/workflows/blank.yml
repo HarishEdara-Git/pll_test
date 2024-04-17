@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  AWS_REGION: ap-south-1  # Replace with your AWS region
+  AWS_REGION: ap-south-1 # Replace with your AWS region
   CLUSTER_NAME: harisheks  # Replace with your EKS cluster name
   NAMESPACE: my-namespace  # Replace with your namespace
 
@@ -19,14 +19,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Use eks/eks-ctl action (recommended)
-        uses: eks/eks-ctl@v1
+      - name: Configure AWS credentials (Optional)
+        # If needed for IAM permissions on the bastion host
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          cluster: ${{ env.CLUSTER_NAME }}
-          region: ${{ env.AWS_REGION }}
+          # Configure AWS credentials for bastion host access (if applicable)
+          role-to-assume: "..."  # Replace with appropriate role
+          role-session-name: "..."  # Replace with appropriate name
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Apply deployment.yml
-        run: kubectl apply -f deployment.yml -n ${{ env.NAMESPACE }}
+      - name: SSH into Bastion Host
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.BASTION_HOST_SSH_KEY }} ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST_IP }} << EOF
+          # Commands to execute on Bastion Host (replace with your commands)
+          # Example: Update kubeconfig with VPC Endpoint URL
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
 
-      - name: Apply service.yml
-        run: kubectl apply -f service.yml -n ${{ env.NAMESPACE }}
+          # Your existing kubectl commands for deployment setup
+          kubectl apply -f deployment.yml -n ${{ env.NAMESPACE }}
+          kubectl apply -f service.yml -n ${{ env.NAMESPACE }}
+          # ... rest of your existing kubectl commands ...
+
+          EOF
+        env:
+          <private_key_path>: ${{ secrets.BASTION_HOST_SSH_KEY }}  # Replace with secret name
+          <bastion_user>: ${{ secrets.BASTION_USER }}  # Replace with bastion host username
+          <bastion_host_ip>: ${{ secrets.BASTION_HOST_IP }}  # Replace with bastion host IP address
+
+          # Optional: Environment variables for kubectl commands
