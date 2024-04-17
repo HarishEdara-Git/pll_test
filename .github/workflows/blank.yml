@@ -26,8 +26,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Update kubeconfig with EKS credentials
-        run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --kubeconfig ~/.kube/config
+      - name: SSH into Bastion Host
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.BASTION_HOST_SSH_KEY }} ${{ secrets.BASTION_HOST_USER }}@${{ secrets.BASTION_HOST_IP }} << EOF
+          # Commands to execute on Bastion Host (replace with your commands)
+          # Example: Update kubeconfig with VPC Endpoint URL
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
+
+          # Your existing kubectl commands for database setup
+          kubectl create ns ${{ env.NAMESPACE }} || true
+          # ... rest of your existing kubectl commands ...
 
       - name: Verify kubeconfig
         run: kubectl config view
