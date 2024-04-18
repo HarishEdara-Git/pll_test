@@ -34,7 +34,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            # Commands to execute on the server after SSH connection
+            # Commands to execute on the server after SSH connectio
             echo "Connected to server"
             # Add your additional commands here
       - name: Update kubeconfig with EKS credentials
